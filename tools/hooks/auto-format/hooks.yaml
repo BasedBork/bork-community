@@ -1,0 +1,82 @@
+# Auto Format Hooks
+# Automatically format code after Claude makes edits
+#
+# Installation:
+#   cp hooks.yaml .claude/hooks.yaml
+#
+# Prerequisites:
+#   npm install -D prettier  (for JS/TS)
+#   pip install black        (for Python)
+
+PostToolUse:
+  # ============================================
+  # JavaScript / TypeScript
+  # ============================================
+
+  - name: Format TypeScript
+    if: (tool == "Edit" || tool == "Write") && (endsWith(file, ".ts") || endsWith(file, ".tsx"))
+    run: npx prettier --write "$file" 2>/dev/null || true
+
+  - name: Format JavaScript
+    if: (tool == "Edit" || tool == "Write") && (endsWith(file, ".js") || endsWith(file, ".jsx"))
+    run: npx prettier --write "$file" 2>/dev/null || true
+
+  # ============================================
+  # Styles
+  # ============================================
+
+  - name: Format CSS
+    if: (tool == "Edit" || tool == "Write") && (endsWith(file, ".css") || endsWith(file, ".scss"))
+    run: npx prettier --write "$file" 2>/dev/null || true
+
+  # ============================================
+  # Data Formats
+  # ============================================
+
+  - name: Format JSON
+    if: (tool == "Edit" || tool == "Write") && endsWith(file, ".json")
+    run: npx prettier --write "$file" 2>/dev/null || true
+
+  - name: Format YAML
+    if: (tool == "Edit" || tool == "Write") && (endsWith(file, ".yaml") || endsWith(file, ".yml"))
+    run: npx prettier --write "$file" 2>/dev/null || true
+
+  # ============================================
+  # Documentation
+  # ============================================
+
+  - name: Format Markdown
+    if: (tool == "Edit" || tool == "Write") && endsWith(file, ".md")
+    run: npx prettier --write "$file" 2>/dev/null || true
+
+  # ============================================
+  # Python
+  # ============================================
+
+  - name: Format Python
+    if: (tool == "Edit" || tool == "Write") && endsWith(file, ".py")
+    run: black "$file" 2>/dev/null || true
+
+  # ============================================
+  # Go
+  # ============================================
+
+  - name: Format Go
+    if: (tool == "Edit" || tool == "Write") && endsWith(file, ".go")
+    run: gofmt -w "$file" 2>/dev/null || true
+
+  # ============================================
+  # Rust
+  # ============================================
+
+  - name: Format Rust
+    if: (tool == "Edit" || tool == "Write") && endsWith(file, ".rs")
+    run: rustfmt "$file" 2>/dev/null || true
+
+  # ============================================
+  # HTML
+  # ============================================
+
+  - name: Format HTML
+    if: (tool == "Edit" || tool == "Write") && (endsWith(file, ".html") || endsWith(file, ".htm"))
+    run: npx prettier --write "$file" 2>/dev/null || true

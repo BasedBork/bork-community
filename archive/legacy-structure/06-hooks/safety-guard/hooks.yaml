@@ -1,0 +1,98 @@
+# Safety Guard Hooks
+# Block dangerous commands before they execute
+#
+# Installation:
+#   cp hooks.yaml .claude/hooks.yaml
+#
+# Or append to global:
+#   cat hooks.yaml >> ~/.claude/hooks.yaml
+
+PreToolUse:
+  # ============================================
+  # Destructive File Operations
+  # ============================================
+
+  - name: Block recursive deletion of root
+    if: tool == "Bash" && matches(command, "rm\\s+-[rf]*\\s+/($|\\s)")
+    action: block
+    message: "Blocked: Recursive deletion of root directory"
+
+  - name: Block recursive deletion of home
+    if: tool == "Bash" && matches(command, "rm\\s+-[rf]*\\s+~")
+    action: block
+    message: "Blocked: Recursive deletion of home directory"
+
+  - name: Block rm -rf with wildcards at root
+    if: tool == "Bash" && matches(command, "rm\\s+-[rf]+.*\\*") && !contains(command, "./")
+    action: block
+    message: "Blocked: Dangerous wildcard deletion. Be more specific."
+
+  # ============================================
+  # System File Protection
+  # ============================================
+
+  - name: Block writing to system directories
+    if: tool == "Write" && (startsWith(file, "/etc/") || startsWith(file, "/usr/") || startsWith(file, "/bin/") || startsWith(file, "/sbin/"))
+    action: block
+    message: "Blocked: Cannot write to system directories"
+
+  - name: Block dev null redirection tricks
+    if: tool == "Bash" && contains(command, "> /dev/")
+    action: block
+    message: "Blocked: Dangerous /dev/ redirection"
+
+  # ============================================
+  # Git Protection
+  # ============================================
+
+  - name: Block force push to main
+    if: tool == "Bash" && contains(command, "git push") && contains(command, "--force") && (contains(command, "main") || contains(command, "master"))
+    action: block
+    message: "Blocked: Force push to main/master. Use a feature branch."
+
+  - name: Block hard reset of shared branches
+    if: tool == "Bash" && contains(command, "git reset --hard") && (contains(command, "origin/main") || contains(command, "origin/master"))
+    action: block
+    message: "Blocked: Hard reset to remote main. This loses local changes."
+
+  # ============================================
+  # Database Protection
+  # ============================================
+
+  - name: Block DROP DATABASE
+    if: tool == "Bash" && matches(command, "DROP\\s+DATABASE")
+    action: block
+    message: "Blocked: DROP DATABASE command"
+
+  - name: Block production database connection
+    if: tool == "Bash" && contains(command, "DATABASE_URL") && contains(command, "prod")
+    action: block
+    message: "Blocked: Direct production database access. Use proper tooling."
+
+  # ============================================
+  # Permission Protection
+  # ============================================
+
+  - name: Block chmod 777
+    if: tool == "Bash" && matches(command, "chmod.*777")
+    action: block
+    message: "Blocked: chmod 777 is insecure. Use specific permissions."
+
+  - name: Block recursive chmod
+    if: tool == "Bash" && matches(command, "chmod\\s+-R.*777")
+    action: block
+    message: "Blocked: Recursive chmod 777 is dangerous"
+
+  # ============================================
+  # Credential Protection
+  # ============================================
+
+  - name: Block committing env files
+    if: tool == "Bash" && contains(command, "git add") && (contains(command, ".env") || contains(command, "credentials"))
+    action: block
+    message: "Blocked: Don't commit environment or credential files"
+
+  - name: Block echoing secrets
+    if: tool == "Bash" && contains(command, "echo") && (contains(command, "API_KEY") || contains(command, "SECRET") || contains(command, "PASSWORD"))
+    action: block
+    message: "Blocked: Don't echo credentials to terminal"
