@@ -11,6 +11,7 @@ Extend Claude Code with skills, agents, hooks, MCP servers, and workflows.
 | [Hooks](./hooks/) | Event-driven automation (before/after tool use) |
 | [MCP](./mcp/) | Connect to external services (GitHub, Notion, Slack) |
 | [Workflows](./workflows/) | Structured patterns for real-world projects |
+| [Bots](./bots/) | Standalone bot applications (Telegram, Discord, etc.) |
 
 ## Quick Overview
 
@@ -63,6 +64,17 @@ claude> Let's use the TDD workflow to build this feature
 
 [Get started with workflows](./workflows/)
 
+### Bots
+Bots are standalone applications built by the community - Telegram bots, Discord bots, and more.
+
+```
+# Deploy a Solana price tracking bot
+cd tools/bots/solana-price-monitor
+npm install && npm run build
+```
+
+[Browse community bots](./bots/)
+
 ## Installation
 
 ### Clone This Repo (All Tools)
@@ -89,6 +101,7 @@ curl -L https://raw.githubusercontent.com/basedbork/bork-community/main/tools/sk
 | Auto-format code after edits | [Hook](./hooks/) |
 | Connect to GitHub/Notion/Slack | [MCP](./mcp/) |
 | Follow a structured dev process | [Workflow](./workflows/) |
+| Deploy a standalone bot | [Bot](./bots/) |
 
 ---
 
